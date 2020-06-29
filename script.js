@@ -17,6 +17,7 @@ const tymy = [
   { team: "Příbram", power: 24 }
 ];
 const pocet = tymy.length;
+var iter = 0;
 
 // var vysledky = Array(15).fill('b');
 // var vysledk0 = [[5], [5]];
@@ -44,8 +45,36 @@ function kurz(_team1, _team2) {
 }
 
 
-function drawTab(arr) {
+function drawTabOld(arr) {
   var tabString = "<tr><th>#</th>";
+
+  // 1. řádek - záhlaví <th>
+  for (let r = 0; r < tymy.length; r++) tabString += `<th>${getTeamAbbr(tymy[r])}</th>`;
+  tabString += "</tr>";
+
+  // zbytek tab
+  for (let row = 1; row <= tymy.length; row++) {
+    tabString += "<tr>";
+    for (let col = 0; col <= tymy.length; col++) {
+      if (row != col) {
+        switch (col) {
+          case 0: tabString += `<td class="th">${getTeamAbbr(tymy[row - 1])}</td>`; break;
+          // [row/col - 1] protože tabulka (resp. indexy pole) začínají až od 2.ř./sl.
+          case tymy.length: tabString += `<td>${arr[row - 1][col - 1]} </td></tr>`; break;
+          default: tabString += `<td>${arr[row - 1][col - 1]} </td>`; break;
+        }
+      }
+      else tabString += `<td class="th"> - </td>`;
+      // tabString += "</tr>";
+    }
+  }
+
+  // vykresli do elementu
+  document.getElementById('tab').innerHTML = tabString;
+}
+
+function drawTab(arr) {
+  var tabString = "<tr><th>d/h</th>";
 
   // 1. řádek - záhlaví <th>
   for (let r = 0; r < tymy.length; r++) {
@@ -71,14 +100,6 @@ function drawTab(arr) {
     }
   }
 
-
-  // tabString += "<th>";
-
-
-
-  // tabString += "<td>aaa</td>";
-
-  // vykresli do elementu
   document.getElementById('tab').innerHTML = tabString;
 }
 
@@ -86,7 +107,11 @@ function battle(_team1, _team2) {
 
 }
 
-// jeden hraje se všemi ostatními najednou, bez střídání, bez kol, nehraje se na domácí/hosté, kurzy jsou podílem týmových power 
+// jeden hraje se všemi ostatními najednou FIXED
+// bez střídání FIXED
+// bez kol FIXED
+// nehraje se na domácí/hosté FIXED
+// kurzy jsou podílem týmových power 
 function consoleTest() {
   for (let t = 0; t < tymy.length; t++) {
     for (let z = t; z < tymy.length; z++) {
@@ -115,44 +140,9 @@ function faktorial(num) {
   else return (num * faktorial(num - 1));
 }
 
-function vypisZapasy() {
+function generovaniZapasu() {
   let max = pocet;
   let d, h;
-
-  // 15 kol - část I.
-  // for (let k = 1; k < max; k++) {
-
-  //   // každé 8 zápasů
-  //   for (let z = 1; z <= max / 2; z++) {
-  //     // pokud je součet vyšší než 15, odečti 15; nejde přes modulo ?!
-  //     d = (k - 1) + z > (max - 1) ? k + z - max : (k - 1) + z;
-  //     h = (z == 1) ? max : (max + k) - z > (max - 1) ? k - z + 1 : (max + k) - z;
-
-  //     console.log(`${k}\t${d}\t${h}\t${teamsAbbr[d - 1]}\t${teamsAbbr[h - 1]}`);
-  //     // console.log(`${k}\t${d}\t`);
-  //     // console.log(`${k}\t${h}\t`);
-
-  //   }
-
-  // }
-
-  // // 15 kol - část II.
-  // for (let k = 1; k < max; k++) {
-
-  //   // každé 8 zápasů
-  //   for (let z = 1; z <= max / 2; z++) {
-  //     // pokud je součet vyšší než 15, odečti 15; nejde přes modulo ?!
-  //     h = (k - 1) + z > (max - 1) ? k + z - max : (k - 1) + z;
-  //     d = (z == 1) ? max : (max + k) - z > (max - 1) ? k - z + 1 : (max + k) - z;
-
-  //     // console.log(`${k}\t${d}\t${h}\t${teamsAbbr[d - 1]}\t${teamsAbbr[h - 1]}`);
-  //     console.log(`${k}\t${d}\t${h}`);
-  //     // console.log(`${k}\t${d}\t`);
-  //     // console.log(`${k}\t${h}\t`);
-
-  //   }
-
-  // }
 
   // dvě části po 15(k)olech; 
   // střídání rozepsaných zápasů z podzimu a jara (z1, z17, z3, z19, ...) 
@@ -164,7 +154,39 @@ function vypisZapasy() {
 
     // každé (k)olo má 8 (z)ápasů
     for (let z = 1; z <= max / 2; z++) {
+      iter++;
+      // pokud je součet vyšší než 15, odečti 15; nejde přes modulo ?!
+      if (k <= max - 1) {
+        d = (k - 1) + z > (max - 1) ? k + z - max : (k - 1) + z;
+        h = (z == 1) ? max : (max + k) - z > (max - 1) ? k - z + 1 : (max + k) - z;
+      }
+      else {
+        d = (z == 1) ? max : (k + 1) - z > (max - 1) ? k - max - z + 2 : (k + 1) - z;
+        h = (k - max) + z > (max - 1) ? k + 1 + z - (2 * max) : (k - max) + z;
+      }
 
+      // vypisZapasuDoTabulky(iter, d, h);
+
+
+    }
+  }
+}
+
+function vypisZapasuDoKonzole() {
+  let max = pocet;
+  let d, h;
+
+  // dvě části po 15(k)olech; 
+  // střídání rozepsaných zápasů z podzimu a jara (z1, z17, z3, z19, ...) 
+  // po 15kolech se střídají sudé zápasy (z16, z2, z18, z4, ...)
+  // aby se daný tým prostřídal venku a doma, jinak hraje většinou 1. část
+  // doma (nebo venku) a jiný tým naopak
+  // např. tým1 má podzimní rozpis Doma/Venku: D V V V V V V V (7×) a D D D D D D D (7×) za sebou
+  for (let k = 1; k <= (max - 1) * 2; k++) {
+
+    // každé (k)olo má 8 (z)ápasů
+    for (let z = 1; z <= max / 2; z++) {
+      iter++;
       // pokud je součet vyšší než 15, odečti 15; nejde přes modulo ?!
       if (k <= max - 1) {
         d = (k - 1) + z > (max - 1) ? k + z - max : (k - 1) + z;
@@ -177,18 +199,27 @@ function vypisZapasy() {
 
 
       // console.log(`${k}\t${d}\t${h}\t${teamsAbbr[d - 1]}\t${teamsAbbr[h - 1]}`);
-      if (k > max - 1) console.log(`${k}\t${d}\t${h}`);
+      // if (k > max - 1) console.log(`${iter}\t${k}\t${d}\t${h}`);
+      // console.log(`${iter}\t${k}\t${d}\t${h}`);
+      // if (iter <= (max * (max - 1))) vypisZapasuDoTabulky(iter, d, h);
+      vypisZapasuDoTabulky(iter, d, h);
+
       // console.log(`${k}\t${d}\t`);
       // console.log(`${k}\t${h}\t`);
 
     }
-
   }
-
-
-  // console.log(max);
 }
 
+function kdoHraje(cisloZapasu) {
+
+}
+
+function vypisZapasuDoTabulky(i, tymDomacich, tymHostu) {
+
+  console.log(`${i}   ${tymDomacich}-${tymHostu}`);
+
+}
 
 // APP -----------------------------------------------
 
@@ -199,10 +230,13 @@ function vypisZapasy() {
 // console.log(faktorialPlus(5));
 // console.log(faktorial(5));
 
+// drawTabOld(vysledky);
 drawTab(vysledky);
 // console.log(vysledky);
 // vysledky = testFillArray(vysledky, '');
-vypisZapasy();
+vypisZapasuDoKonzole();
+// vypisZapasuDoTabulky();
+kdoHraje(20);
 
 // po vteřině znovu vykresli
 // setTimeout(() => {
