@@ -52,9 +52,9 @@ function kurz(_team1, _team2) {
   return parseFloat(_team1 / _team2).toFixed(2);
 }
 
-
-function drawTabOld(arr) {
-  var tabString = "<tr><th>#</th>";
+function drawTabInto(arr, content) {
+  // vypíše do tabulky samé nuly, po použití testFillArray(array, content) vyplní 'content'
+  let tabString = "<tr><th>#</th>";
 
   // 1. řádek - záhlaví <th>
   for (let r = 0; r < tymy.length; r++) tabString += `<th>${getTeamAbbr(tymy[r])}</th>`;
@@ -68,8 +68,8 @@ function drawTabOld(arr) {
         switch (col) {
           case 0: tabString += `<td class="th">${getTeamAbbr(tymy[row - 1])}</td>`; break;
           // [row/col - 1] protože tabulka (resp. indexy pole) začínají až od 2.ř./sl.
-          case tymy.length: tabString += `<td>${arr[row - 1][col - 1]} </td></tr>`; break;
-          default: tabString += `<td>${arr[row - 1][col - 1]} </td>`; break;
+          case tymy.length: tabString += `<td>${content}</td></tr>`; break;
+          default: tabString += `<td>${content}</td>`; break;
         }
       }
       else tabString += `<td class="th"> - </td>`;
@@ -81,25 +81,32 @@ function drawTabOld(arr) {
   document.getElementById('tab').innerHTML = tabString;
 }
 
-function drawTab(arr) {
-  var tabString = "<tr><th>d/h</th>";
+function drawTabCoords() {
+  // vykreslení do buněk tabulky
+  let tabString = "<tr><th>d/h</th>";
 
   // 1. řádek - záhlaví <th>
-  for (let r = 0; r < tymy.length; r++) {
+  for (let r = 0; r < pocet; r++) {
     tabString += `<th>${getTeamAbbr(tymy[r])}</th>`;
   }
   tabString += "</tr>";
 
   // zbytek tab
-  for (let row = 1; row <= tymy.length; row++) {
+  for (let row = 1; row <= pocet; row++) {
     tabString += "<tr>";
-    for (let col = 0; col <= tymy.length; col++) {
+    for (let col = 0; col <= pocet; col++) {
       if (row != col) {
+
+        let numRow = row.toString().length < 2 ? conv2Dec(row) : row;
+        let numCol = col.toString().length < 2 ? conv2Dec(col) : col;
+
+        // [row/col - 1] protože tabulka (resp. indexy pole) začínají až od 2.ř./sl.
         switch (col) {
           case 0: tabString += `<td class="th">${getTeamAbbr(tymy[row - 1])}</td>`; break;
-          // [row/col - 1] protože tabulka (resp. indexy pole) začínají až od 2.ř./sl.
-          case tymy.length: tabString += `<td>${arr[row - 1][col - 1]} </td></tr>`; break;
-          default: tabString += `<td>${arr[row - 1][col - 1]} </td>`; break;
+          // do buněk vypíše polohu XY [xxyy] vč. nastavení id každé buňky id='idXXYY'
+          case pocet: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td></tr>`; break;
+          default: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td>`; break;
+
         }
       }
       else tabString += `<td class="th"> - </td>`;
@@ -111,41 +118,73 @@ function drawTab(arr) {
   document.getElementById('tab').innerHTML = tabString;
 }
 
+
+function drawTabMatchOrder() {
+  // vykreslení do buněk tabulky
+  var tabString = "<tr><th>d/h</th>";
+
+  // 1. řádek - záhlaví <th>
+  for (let r = 0; r < pocet; r++) {
+    tabString += `<th>${getTeamAbbr(tymy[r])}</th>`;
+  }
+  tabString += "</tr>";
+
+  // zbytek tab
+  for (let row = 1; row <= pocet; row++) {
+    tabString += "<tr>";
+    for (let col = 0; col <= pocet; col++) {
+      if (row != col) {
+
+        let numRow = row.toString().length < 2 ? conv2Dec(row) : row;
+        let numCol = col.toString().length < 2 ? conv2Dec(col) : col;
+
+        // [row/col - 1] protože tabulka (resp. indexy pole) začínají až od 2.ř./sl.
+        switch (col) {
+          case 0: tabString += `<td class="th">${getTeamAbbr(tymy[row - 1])}</td>`; break;
+          case pocet: tabString += `<td id='td${numRow}${numCol}'>.</td></tr>`; break;
+          default: tabString += `<td id='td${numRow}${numCol}'>-</td>`; break;
+
+          /* // do buněk vypíše polohu XY [xxyy] vč. nastavení id každé buňky id='idXXYY'
+          case pocet: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td></tr>`; break;
+          default: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td>`; break;
+          */
+        }
+      }
+      else tabString += `<td class="th"> - </td>`;
+
+      // tabString += "</tr>";
+    }
+  }
+
+  document.getElementById('tab').innerHTML = tabString;
+}
+
+// convert to 2 decimals
+function conv2Dec(num2conv) {
+  return `0${num2conv}`;
+}
+
 function battle(_team1, _team2) {
 
 }
 
-function consoleTest() {
-  for (let t = 0; t < tymy.length; t++) {
-    for (let z = t; z < tymy.length; z++) {
-      if (t != z) {
-        // console.log(`${t}-${z} \t ${getTeamAbbr(tymy[t])}-${getTeamAbbr(tymy[z])} \t ${kurz(tymy[t].power, tymy[z].power)} \t ${battle(tymy[t], tymy[z])}`);
+// function testFillArray(arrayName, content) {
+//   // do všech buněk 2Dpole 'arrayName' vloží 'content' ;
+//   arrayName = arrayName.map((subarray) => subarray.map((item) => content));
+//   return arrayName;
+// }
 
-      }
-    }
-  }
-}
-
-function testFillArray(arrayName, content) {
-  // console.log(arr);
-  arrayName = arrayName.map((subarray) => subarray.map((item) => content));
-  return arrayName;
-}
-
-// vygenerování kol a zápasů dle algoritmu, stále stejný výsledek
-// testováno na 16týmů
 function generovaniZapasu(kolo, zapas, cisloZapasu) {
-  // let max = pocet;
-  let d, h;
-  let iter = 0;
-  // console.log(cisloZapasu);
-
-  // dvě části po 15(k)olech; 
+  // vygenerování (k)ol a (z)ápasů dle algoritmu, stále stejný výsledek
+  // testováno na 16týmů; dvě části po 15(k)olech; 
   // střídání rozepsaných zápasů z podzimu a jara (z1, z17, z3, z19, ...) 
   // po 15kolech se střídají sudé zápasy (z16, z2, z18, z4, ...)
   // aby se daný tým prostřídal venku a doma, jinak hraje většinou 1. část
-  // doma (nebo venku) a jiný tým naopak
+  // (d)oma nebo venku jako (h)osté a jiný tým naopak
   // např. tým1 má podzimní rozpis Doma/Venku: D V V V V V V V (7×) a D D D D D D D (7×) za sebou
+  let d, h;
+  let iter = 0;
+
   for (let k = 1; k <= (pocet - 1) * 2; k++) {
 
     // každé (k)olo má 8 (z)ápasů
@@ -153,7 +192,7 @@ function generovaniZapasu(kolo, zapas, cisloZapasu) {
       iter++;
       // console.log(iter + " " + cisloZapasu);
 
-      // pokud je součet vyšší než 15, odečti 15; nejde přes modulo ?!
+      // pokud je součet vyšší než 15, odečti 15; nejde přes modulo !!
       if (k <= pocet - 1) {
         d = (k - 1) + z > (pocet - 1) ? k + z - pocet : (k - 1) + z;
         h = (z == 1) ? pocet : (pocet + k) - z > (pocet - 1) ? k - z + 1 : (pocet + k) - z;
@@ -165,6 +204,13 @@ function generovaniZapasu(kolo, zapas, cisloZapasu) {
 
       if (iter == cisloZapasu) return `${teamsAbbr[d - 1]} vs ${teamsAbbr[h - 1]} (${d}-${h})`;
       if (k == kolo && z == zapas) return `${teamsAbbr[d - 1]} vs ${teamsAbbr[h - 1]} (${d}-${h})`;
+
+      // document.getElementById('tab').innerHTML = "aaa";
+
+      // if (row != col)
+      // document.getElementById(`tab`).innerHTML = "aaa";
+      console.log(`${iter}\t${d}-${h}`);
+
 
       // if (iter == cisloZapasu) return `${teamsAbbr[d - 1]} vs ${teamsAbbr[h - 1]} (${d}-${h})`;
       // vypisZapasuDoTabulky(iter, d, h);
@@ -218,22 +264,25 @@ function vypisZapasuDoKonzole() {
   }
 }
 
-// kdo hraje v daném kole a zápase; neošetřeno nečíslo 
+function vypisZapasuDoTabulky(i, tymDomacich, tymHostu) {
+  // TODO
+
+
+  // console.log(`${i}   ${tymDomacich}-${tymHostu}`);
+
+}
+
 function kdoHrajeKoloZapas(kolo, zapas) {
+  // kdo hraje v daném kole a zápase; neošetřeno nečíslo 
   console.log(`${kolo}.kolo, ${zapas}.zápas: ${generovaniZapasu(kolo, zapas, undefined)}`);
 }
 
 
 function kdoHrajeCisloZapasu(cisloZapasu) {
+  // kdo hraje v n-tém zápase? [1..pocet*(pocet-1)] -> 1-240 pro 16 týmů (16*15)
   console.log(`zápas číslo ${cisloZapasu}: ${generovaniZapasu(undefined, undefined, cisloZapasu)}`);
-
 }
 
-function vypisZapasuDoTabulky(i, tymDomacich, tymHostu) {
-  // TODO
-  // console.log(`${i}   ${tymDomacich}-${tymHostu}`);
-
-}
 
 // APP -----------------------------------------------
 
@@ -241,24 +290,37 @@ function vypisZapasuDoTabulky(i, tymDomacich, tymHostu) {
 // getPowers();
 // getpocetPower();
 
-// console.log(faktorialPlus(5));
-// console.log(faktorial(5));
 
-// drawTabOld(vysledky);
-drawTab(vysledky);
+// drawTabCoords();
+drawTabInto(vysledky, '-');
+
+
 // console.log(vysledky);
-// vysledky = testFillArray(vysledky, '');
-vypisZapasuDoKonzole();
-// vypisZapasuDoTabulky();
-
-// kdoHrajeKoloZapas(10, 2);
-kdoHrajeCisloZapasu(0);
 
 // po vteřině znovu vykresli
 // setTimeout(() => {
-//   drawTab(vysledky);
-//   console.log(testFillArray(vysledky, ''));
+  // console.log(testFillArray(vysledky, 'x'));
+  // drawTabInto(vysledky);
+  // drawTabCoords();
+  // drawTabInto(vysledky);
 // }, 1000);
+
+// console.log(testFillArray(vysledky, 'y'));
+// drawTabInto(vysledky);
+// console.log(testFillArray(vysledky, 'z'));
+// drawTabMatchOrder(vysledky);
+
+
+
+// console.log(vysledky);
+// vysledky = testFillArray(vysledky, '');
+// vypisZapasuDoKonzole();
+// vypisZapasuDoTabulky();
+// generovaniZapasu();
+
+// kdoHrajeKoloZapas(10, 2);
+// kdoHrajeCisloZapasu(100);
+
 
 
 
