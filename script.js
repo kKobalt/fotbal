@@ -82,7 +82,8 @@ function drawTabInto(arr, content) {
 }
 
 function drawTabCoords() {
-  // vykreslení do buněk tabulky
+  // !!! spustit jako první, inicializuje tabulku, nastaví všem <td> id, nutné k vkládání
+  // vykreslení do buněk tabulky souřadnice XY
   let tabString = "<tr><th>d/h</th>";
 
   // 1. řádek - záhlaví <th>
@@ -118,10 +119,11 @@ function drawTabCoords() {
   document.getElementById('tab').innerHTML = tabString;
 }
 
-
+/* 
 function drawTabMatchOrder() {
   // vykreslení do buněk tabulky
-  var tabString = "<tr><th>d/h</th>";
+  let tabString = "<tr><th>d/h</th>";
+  let iter = 0;
 
   // 1. řádek - záhlaví <th>
   for (let r = 0; r < pocet; r++) {
@@ -133,6 +135,7 @@ function drawTabMatchOrder() {
   for (let row = 1; row <= pocet; row++) {
     tabString += "<tr>";
     for (let col = 0; col <= pocet; col++) {
+      iter++;
       if (row != col) {
 
         let numRow = row.toString().length < 2 ? conv2Dec(row) : row;
@@ -144,11 +147,13 @@ function drawTabMatchOrder() {
           case pocet: tabString += `<td id='td${numRow}${numCol}'>.</td></tr>`; break;
           default: tabString += `<td id='td${numRow}${numCol}'>-</td>`; break;
 
-          /* // do buněk vypíše polohu XY [xxyy] vč. nastavení id každé buňky id='idXXYY'
-          case pocet: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td></tr>`; break;
-          default: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td>`; break;
-          */
+          // do buněk vypíše polohu XY [xxyy] vč. nastavení id každé buňky id='idXXYY'
+          // case pocet: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td></tr>`; break;
+          // default: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td>`; break;
+          
         }
+
+        // document.getElementById(`td${numRow}${numCol}`).innerHTML = `${iter}`;
       }
       else tabString += `<td class="th"> - </td>`;
 
@@ -158,6 +163,7 @@ function drawTabMatchOrder() {
 
   document.getElementById('tab').innerHTML = tabString;
 }
+*/
 
 // convert to 2 decimals
 function conv2Dec(num2conv) {
@@ -184,6 +190,7 @@ function generovaniZapasu(kolo, zapas, cisloZapasu) {
   // např. tým1 má podzimní rozpis Doma/Venku: D V V V V V V V (7×) a D D D D D D D (7×) za sebou
   let d, h;
   let iter = 0;
+  let numRow, numCol;
 
   for (let k = 1; k <= (pocet - 1) * 2; k++) {
 
@@ -209,7 +216,12 @@ function generovaniZapasu(kolo, zapas, cisloZapasu) {
 
       // if (row != col)
       // document.getElementById(`tab`).innerHTML = "aaa";
-      console.log(`${iter}\t${d}-${h}`);
+      // console.log(`${iter}\t${d}-${h}`);
+
+      numRow = d.toString().length < 2 ? conv2Dec(d) : d;
+      numCol = h.toString().length < 2 ? conv2Dec(h) : h;
+      // console.log(numRow + "" + numCol);
+      document.getElementById(`td${numRow}${numCol}`).innerHTML = `${iter}`;
 
 
       // if (iter == cisloZapasu) return `${teamsAbbr[d - 1]} vs ${teamsAbbr[h - 1]} (${d}-${h})`;
@@ -221,6 +233,8 @@ function generovaniZapasu(kolo, zapas, cisloZapasu) {
   }
   if (!isNaN(kolo) && !isNaN(zapas)) return `Neplatné číslo kola (${kolo}) nebo zápasu (${zapas}))`;
   if (!isNaN(cisloZapasu)) return `Neplatné číslo zápasu (${cisloZapasu}). Zadej [1-${pocet * (pocet - 1)}]`;
+
+
 
 }
 
@@ -291,8 +305,11 @@ function kdoHrajeCisloZapasu(cisloZapasu) {
 // getpocetPower();
 
 
-// drawTabCoords();
-drawTabInto(vysledky, '-');
+drawTabCoords();
+// drawTabInto(vysledky, '-');
+// generovaniZapasu();
+drawTabMatchOrder();
+
 
 
 // console.log(vysledky);
@@ -316,7 +333,6 @@ drawTabInto(vysledky, '-');
 // vysledky = testFillArray(vysledky, '');
 // vypisZapasuDoKonzole();
 // vypisZapasuDoTabulky();
-// generovaniZapasu();
 
 // kdoHrajeKoloZapas(10, 2);
 // kdoHrajeCisloZapasu(100);
