@@ -25,18 +25,11 @@ const tymy = [
   { team: "Opava", power: 25 },
   { team: "Příbram", power: 24 }
 ];
-const pocet = tymy.length;
-
-// var vysledky = Array(15).fill('b');
-// var vysledk0 = [[5], [5]];
-var vysledky = Array(pocet).fill(1).map(() => new Array(pocet).fill(0));
-// vysledk0.fill('c');
-// var vysledk0 = [Array(5), Array(5)].fill('c');
-// var vysledky = [...Array(15)];
-// var vysledky1 = [];
-// Array.apply(9, vysledky);
-// Array().fill('a').map((vysledky1, i) => i);
-// vysledky.fill('a');
+const pocetTymu = tymy.length;
+const pocetKol = (pocetTymu - 1) * 2;
+const pocetZapasu = pocetTymu / 2;
+const pocetZapasuCelkem = pocetTymu * (pocetTymu - 1);
+var vysledky = Array(pocetTymu).fill(1).map(() => new Array(pocetTymu).fill(0));
 const teams = tymy.map(arr => arr.team);
 const teamsAbbr = tymy.map(arr => arr.team.slice(0, 3));
 const powers = tymy.map(arr => arr.power);
@@ -46,10 +39,26 @@ const powers = tymy.map(arr => arr.power);
 function getTeams() { console.log(teams); }
 function getTeamAbbr(_team) { return _team.team.slice(0, 3); }
 function getPowers() { console.log(powers); }
-function getpocetPower() { console.log(Math.pocet(...powers)); }
-
+function getpocetPower() { console.log(Math.pocetTymu(...powers)); }
+function conv2Dec(num2conv) { return `0${num2conv}`; }
 function kurz(_team1, _team2) {
   return parseFloat(_team1 / _team2).toFixed(2);
+}
+
+function isValidRound(kolo) {
+  // vrací TRUE, pokud je počet kol 1..(pocetTymu-1)*2 -> 1..30
+  if (isNaN(kolo) || kolo <= 0 || (kolo > pocetKol)) return false;
+  else return true;
+}
+function isValidMatch(zapas) {
+  // vrací TRUE, pokud je počet zápasů V JEDNOM KOLE 1..pocetZapasu -> 1..8
+  if (isNaN(zapas) || zapas <= 0 || zapas > pocetZapasu) return false;
+  else return true;
+}
+function isValidMatch2(zapas) {
+  // vrací TRUE, pokud je počet CELKOVÝCH zápasů 1..pocetZapasuCelkem -> 1..240
+  if (isNaN(zapas) || zapas <= 0 || zapas > pocetZapasuCelkem) return false;
+  else return true;
 }
 
 function drawTabInto(arr, content) {
@@ -80,22 +89,21 @@ function drawTabInto(arr, content) {
   // vykresli do elementu
   document.getElementById('tab').innerHTML = tabString;
 }
-
 function drawTabCoords() {
   // !!! spustit jako první, inicializuje tabulku, nastaví všem <td> id, nutné k vkládání
   // vykreslení do buněk tabulky souřadnice XY
   let tabString = "<tr><th>d/h</th>";
 
   // 1. řádek - záhlaví <th>
-  for (let r = 0; r < pocet; r++) {
+  for (let r = 0; r < pocetTymu; r++) {
     tabString += `<th>${getTeamAbbr(tymy[r])}</th>`;
   }
   tabString += "</tr>";
 
   // zbytek tab
-  for (let row = 1; row <= pocet; row++) {
+  for (let row = 1; row <= pocetTymu; row++) {
     tabString += "<tr>";
-    for (let col = 0; col <= pocet; col++) {
+    for (let col = 0; col <= pocetTymu; col++) {
       if (row != col) {
 
         let numRow = row.toString().length < 2 ? conv2Dec(row) : row;
@@ -105,7 +113,7 @@ function drawTabCoords() {
         switch (col) {
           case 0: tabString += `<td class="th">${getTeamAbbr(tymy[row - 1])}</td>`; break;
           // do buněk vypíše polohu XY [xxyy] vč. nastavení id každé buňky id='idXXYY'
-          case pocet: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td></tr>`; break;
+          case pocetTymu: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td></tr>`; break;
           default: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td>`; break;
 
         }
@@ -118,17 +126,11 @@ function drawTabCoords() {
 
   document.getElementById('tab').innerHTML = tabString;
 }
-
-
 function drawTabMatchOrder() {
   generovaniZapasu();
 }
 
 
-function conv2Dec(num2conv) {
-  // convert to 2 decimals
-  return `0${num2conv}`;
-}
 
 function battle(_team1, _team2) {
 
@@ -136,6 +138,7 @@ function battle(_team1, _team2) {
 
 
 function generovaniZapasu(kolo, zapas, cisloZapasu) {
+  /*
   // vygenerování (k)ol a (z)ápasů dle algoritmu, stále stejný výsledek
   // testováno na 16týmů; dvě části po 15(k)olech; 
   // střídání rozepsaných zápasů z podzimu a jara (z1, z17, z3, z19, ...) 
@@ -143,28 +146,32 @@ function generovaniZapasu(kolo, zapas, cisloZapasu) {
   // aby se daný tým prostřídal venku a doma, jinak hraje většinou 1. část
   // (d)oma nebo venku jako (h)osté a jiný tým naopak
   // např. tým1 má podzimní rozpis Doma/Venku: D V V V V V V V (7×) a D D D D D D D (7×) za sebou
+  */
   let d, h;
   let iter = 0;
   let numRow, numCol;
 
-  for (let k = 1; k <= (pocet - 1) * 2; k++) {
+  for (let k = 1; k <= pocetKol; k++) {
 
     // každé (k)olo má 8 (z)ápasů
-    for (let z = 1; z <= pocet / 2; z++) {
+    for (let z = 1; z <= pocetZapasu; z++) {
       iter++;
       // console.log(iter + " " + cisloZapasu);
 
       // pokud je součet vyšší než 15, odečti 15; nejde přes modulo !!
-      if (k <= pocet - 1) {
-        d = (k - 1) + z > (pocet - 1) ? k + z - pocet : (k - 1) + z;
-        h = (z == 1) ? pocet : (pocet + k) - z > (pocet - 1) ? k - z + 1 : (pocet + k) - z;
+      if (k <= pocetTymu - 1) {
+        d = (k - 1) + z > (pocetTymu - 1) ? k + z - pocetTymu : (k - 1) + z;
+        h = (z == 1) ? pocetTymu : (pocetTymu + k) - z > (pocetTymu - 1) ? k - z + 1 : (pocetTymu + k) - z;
       }
       else {
-        d = (z == 1) ? pocet : (k + 1) - z > (pocet - 1) ? k - pocet - z + 2 : (k + 1) - z;
-        h = (k - pocet) + z > (pocet - 1) ? k + 1 + z - (2 * pocet) : (k - pocet) + z;
+        d = (z == 1) ? pocetTymu : (k + 1) - z > (pocetTymu - 1) ? k - pocetTymu - z + 2 : (k + 1) - z;
+        h = (k - pocetTymu) + z > (pocetTymu - 1) ? k + 1 + z - (2 * pocetTymu) : (k - pocetTymu) + z;
       }
 
+      // parametr fce 'cisloZapasu' - vrátí zápas (týmy a jejich čísla), když dojde k danému číslu zápasu
       if (iter == cisloZapasu) return `${teamsAbbr[d - 1]} vs ${teamsAbbr[h - 1]} (${d}-${h})`;
+
+      // parametry fce 'kolo' a 'zapas' - vrátí vrátí zápas (týmy a jejich čísla), když dojde k danému kolu a zápasu
       if (k == kolo && z == zapas) return `${teamsAbbr[d - 1]} vs ${teamsAbbr[h - 1]} (${d}-${h})`;
 
       // document.getElementById('tab').innerHTML = "aaa";
@@ -186,15 +193,15 @@ function generovaniZapasu(kolo, zapas, cisloZapasu) {
     }
 
   }
-  if (!isNaN(kolo) && !isNaN(zapas)) return `Neplatné číslo kola (${kolo}) nebo zápasu (${zapas}))`;
-  if (!isNaN(cisloZapasu)) return `Neplatné číslo zápasu (${cisloZapasu}). Zadej [1-${pocet * (pocet - 1)}]`;
+
+  // 
 
 
 
 }
 
-function vypisZapasuDoKonzole() {
-  // let max = pocet;
+function rozpisZapasuDoKonzole() {
+  // let max = pocetTymu;
   let d, h;
   let iter = 0;
 
@@ -204,27 +211,27 @@ function vypisZapasuDoKonzole() {
   // aby se daný tým prostřídal venku a doma, jinak hraje většinou 1. část
   // doma (nebo venku) a jiný tým naopak
   // např. tým1 má podzimní rozpis Doma/Venku: D V V V V V V V (7×) a D D D D D D D (7×) za sebou
-  for (let k = 1; k <= (pocet - 1) * 2; k++) {
+  for (let k = 1; k <= pocetKol; k++) {
 
     // každé (k)olo má 8 (z)ápasů
-    for (let z = 1; z <= pocet / 2; z++) {
+    for (let z = 1; z <= pocetZapasu; z++) {
       iter++;
       // pokud je součet vyšší než 15, odečti 15; nejde přes modulo ?!
-      if (k <= pocet - 1) {
-        d = (k - 1) + z > (pocet - 1) ? k + z - pocet : (k - 1) + z;
-        h = (z == 1) ? pocet : (pocet + k) - z > (pocet - 1) ? k - z + 1 : (pocet + k) - z;
+      if (k <= pocetTymu - 1) {
+        d = (k - 1) + z > (pocetTymu - 1) ? k + z - pocetTymu : (k - 1) + z;
+        h = (z == 1) ? pocetTymu : (pocetTymu + k) - z > (pocetTymu - 1) ? k - z + 1 : (pocetTymu + k) - z;
       }
       else {
-        d = (z == 1) ? pocet : (k + 1) - z > (pocet - 1) ? k - pocet - z + 2 : (k + 1) - z;
-        h = (k - pocet) + z > (pocet - 1) ? k + 1 + z - (2 * pocet) : (k - pocet) + z;
+        d = (z == 1) ? pocetTymu : (k + 1) - z > (pocetTymu - 1) ? k - pocetTymu - z + 2 : (k + 1) - z;
+        h = (k - pocetTymu) + z > (pocetTymu - 1) ? k + 1 + z - (2 * pocetTymu) : (k - pocetTymu) + z;
       }
 
 
       // console.log(`${k}\t${d}\t${h}\t${teamsAbbr[d - 1]}\t${teamsAbbr[h - 1]}`);
-      // if (k > pocet - 1) console.log(`${iter}\t${k}\t${d}\t${h}`);
-      // console.log(`${iter}\t${k}\t${d}\t${h}`);
-      // if (iter <= (pocet * (pocet - 1))) vypisZapasuDoTabulky(iter, d, h);
-      vypisZapasuDoTabulky(iter, d, h);
+      // if (k > pocetTymu - 1) console.log(`${iter}\t${k}\t${d}\t${h}`);
+      console.log(`${iter}\t${k}\t${d}\t${h}`);
+      // if (iter <= (pocetZapasuCelkem)) vypisZapasuDoTabulky(iter, d, h);
+      // vypisZapasuDoTabulky(iter, d, h);
 
       // console.log(`${k}\t${d}\t`);
       // console.log(`${k}\t${h}\t`);
@@ -235,21 +242,25 @@ function vypisZapasuDoKonzole() {
 
 function vypisZapasuDoTabulky(i, tymDomacich, tymHostu) {
   // TODO
-
-
   // console.log(`${i}   ${tymDomacich}-${tymHostu}`);
-
 }
 
-function kdoHrajeKoloZapas(kolo, zapas) {
+function kdoHrajeKoloZapas(kolo = 1, zapas = 1) {
   // kdo hraje v daném kole a zápase; neošetřeno nečíslo 
-  console.log(`${kolo}.kolo, ${zapas}.zápas: ${generovaniZapasu(kolo, zapas, undefined)}`);
+  // console.log(`${kolo}.kolo, ${zapas}(${(kolo - 1) * (pocetZapasu) + zapas}).zápas: ${generovaniZapasu(kolo, zapas, undefined)}`);
+  kolo = parseInt(kolo);
+  zapas = parseInt(zapas);
+  if (isValidRound(kolo) && isValidMatch(zapas)) console.log(`${kolo}.kolo, ${zapas}(${(kolo - 1) * (pocetZapasu) + zapas}).zápas: ${generovaniZapasu(kolo, zapas, undefined)}`);
+  // else if (!isValidRound(kolo)) console.log(`ERR: ${kolo}.kolo / ${zapas}.zápas (max ${pocetKol}.k/${pocetZapasu}.z)`);
+  if (!isValidRound(kolo)) console.log(`ERR: ${kolo}.kolo - zadej [1-${pocetKol}]`);
+  if (!isValidMatch(zapas)) console.log(`ERR: ${zapas}.zápas - zadej [1-${pocetZapasu}]`);
 }
 
-
-function kdoHrajeCisloZapasu(cisloZapasu) {
-  // kdo hraje v n-tém zápase? [1..pocet*(pocet-1)] -> 1-240 pro 16 týmů (16*15)
-  console.log(`zápas číslo ${cisloZapasu}: ${generovaniZapasu(undefined, undefined, cisloZapasu)}`);
+function kdoHrajeCisloZapasu(cisloZapasu = 1) {
+  // kdo hraje v n-tém zápase? [1..pocetTymu*(pocetTymu-1)] -> 1-240 pro 16 týmů (16*15)
+  cisloZapasu = parseInt(cisloZapasu);
+  if (isValidMatch2(cisloZapasu)) console.log(`${cisloZapasu}.zápas: ${generovaniZapasu(undefined, undefined, cisloZapasu)}`);
+  else console.log(`ERR: ${cisloZapasu}.zápas - zadej [1-${pocetZapasuCelkem}]`);
 }
 
 
@@ -271,10 +282,10 @@ drawTabMatchOrder();
 
 // po vteřině znovu vykresli
 // setTimeout(() => {
-  // console.log(testFillArray(vysledky, 'x'));
-  // drawTabInto(vysledky);
-  // drawTabCoords();
-  // drawTabInto(vysledky);
+// console.log(testFillArray(vysledky, 'x'));
+// drawTabInto(vysledky);
+// drawTabCoords();
+// drawTabInto(vysledky);
 // }, 1000);
 
 // console.log(testFillArray(vysledky, 'y'));
@@ -286,11 +297,11 @@ drawTabMatchOrder();
 
 // console.log(vysledky);
 // vysledky = testFillArray(vysledky, '');
-// vypisZapasuDoKonzole();
+rozpisZapasuDoKonzole();
 // vypisZapasuDoTabulky();
 
-// kdoHrajeKoloZapas(10, 2);
-// kdoHrajeCisloZapasu(100);
+// kdoHrajeKoloZapas(30, 5);
+kdoHrajeCisloZapasu(2401);
 
 
 
@@ -300,6 +311,6 @@ drawTabMatchOrder();
 // consoleTest();
 
 
-// console.log(Math.pocet.apply(null, powers));
-// console.log(Math.pocet(...powers));
+// console.log(Math.pocetTymu.apply(null, powers));
+// console.log(Math.pocetTymu(...powers));
 // console.log(powers[2]);
