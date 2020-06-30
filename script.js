@@ -119,54 +119,14 @@ function drawTabCoords() {
   document.getElementById('tab').innerHTML = tabString;
 }
 
-/* 
+
 function drawTabMatchOrder() {
-  // vykreslení do buněk tabulky
-  let tabString = "<tr><th>d/h</th>";
-  let iter = 0;
-
-  // 1. řádek - záhlaví <th>
-  for (let r = 0; r < pocet; r++) {
-    tabString += `<th>${getTeamAbbr(tymy[r])}</th>`;
-  }
-  tabString += "</tr>";
-
-  // zbytek tab
-  for (let row = 1; row <= pocet; row++) {
-    tabString += "<tr>";
-    for (let col = 0; col <= pocet; col++) {
-      iter++;
-      if (row != col) {
-
-        let numRow = row.toString().length < 2 ? conv2Dec(row) : row;
-        let numCol = col.toString().length < 2 ? conv2Dec(col) : col;
-
-        // [row/col - 1] protože tabulka (resp. indexy pole) začínají až od 2.ř./sl.
-        switch (col) {
-          case 0: tabString += `<td class="th">${getTeamAbbr(tymy[row - 1])}</td>`; break;
-          case pocet: tabString += `<td id='td${numRow}${numCol}'>.</td></tr>`; break;
-          default: tabString += `<td id='td${numRow}${numCol}'>-</td>`; break;
-
-          // do buněk vypíše polohu XY [xxyy] vč. nastavení id každé buňky id='idXXYY'
-          // case pocet: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td></tr>`; break;
-          // default: tabString += `<td id='td${numRow}${numCol}'>${numRow}${numCol}</td>`; break;
-          
-        }
-
-        // document.getElementById(`td${numRow}${numCol}`).innerHTML = `${iter}`;
-      }
-      else tabString += `<td class="th"> - </td>`;
-
-      // tabString += "</tr>";
-    }
-  }
-
-  document.getElementById('tab').innerHTML = tabString;
+  generovaniZapasu();
 }
-*/
 
-// convert to 2 decimals
+
 function conv2Dec(num2conv) {
+  // convert to 2 decimals
   return `0${num2conv}`;
 }
 
@@ -174,11 +134,6 @@ function battle(_team1, _team2) {
 
 }
 
-// function testFillArray(arrayName, content) {
-//   // do všech buněk 2Dpole 'arrayName' vloží 'content' ;
-//   arrayName = arrayName.map((subarray) => subarray.map((item) => content));
-//   return arrayName;
-// }
 
 function generovaniZapasu(kolo, zapas, cisloZapasu) {
   // vygenerování (k)ol a (z)ápasů dle algoritmu, stále stejný výsledek
