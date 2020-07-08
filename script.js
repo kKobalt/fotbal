@@ -142,7 +142,7 @@ function drawTabCoords() {
 
   var tf = document.getElementsByName('td').length;
 
-  console.log('Coords drawed');
+  // console.log('Coords drawed');
   console.log(td);
   // console.log(te);
   console.log(tf);
